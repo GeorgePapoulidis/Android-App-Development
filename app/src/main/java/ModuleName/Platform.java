@@ -1,7 +1,7 @@
 package ModuleName;
 
 
-import Server.Server;
+import Server.ServerAPI;
 import Server.ServerArrayResponse;
 import Server.ServerObjectResponse;
 import Server.ServerResponse;
@@ -15,7 +15,7 @@ public class Platform {
 
     HashSet<Store> stores=new HashSet<Store>();
     HashSet<Owner> owners=new HashSet<Owner>();
-    static Server myServer=new Server();
+    static ServerAPI myServer=new ServerAPI();
     public static String addStore(String name,BigInteger userID,Integer x, Integer y){
        if (name==null){
            return "NullStoreName";

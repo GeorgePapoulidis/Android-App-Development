@@ -1,5 +1,8 @@
 package Server;
 
+/**
+ * Contains an encoded textual representation of all possible outcomes when accessing a Server API endpoint.
+ */
 public enum ServerExitCode {
     Success,
     DatabaseError,

@@ -22,7 +22,7 @@ public class StatementResponse extends DatabaseResponse{
     }
 
     /**
-     * @return An object that can be used for parsing all data from the response of the database.
+     * @return A PreparedStatement that can be used for parsing all data from the response of the database.
      */
     public PreparedStatement getStatement(){
         return this.statement;

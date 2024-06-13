@@ -16,9 +16,20 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Server {
+/**
+ * This is an API used by clients, to gain restricted access to the database.
+ * Any checks of user input must be done in this class.
+ * Any handling and obfuscating of data from the database must be done in this class.
+ * The return objects of ServerAPI must be static and not have a live connection to the database.
+ * This Object must be terminated using the .close() method before being destroyed.
+ */
+public class ServerAPI {
+    /**
+     * A live connection to the database, used in order to avoid creating new connections for each request.
+     * It must be implicitly closed when the ServerAPI object is about to be destroyed.
+     */
     public final Connection connection;
-    public Server(){
+    public ServerAPI(){
         ConnectionResponse response = DatabaseAPI.connect(null);
         this.connection = response.getConnection();
     }
@@ -31,37 +42,39 @@ public class Server {
 
     /**
      * Check the input of this method for invalid input, guaranteeing that the Database will be able to handle the data
-     * given to it. Return appropriate ServerExitCodes for each type of logIn failure.
+     * given to it.
+     * Return appropriate ServerExitCodes for each type of logIn failure.
      * @param username The unique username that will be used to log in.
      * @param password The password that is supposed to match with the username.
-     * @return Return a wrapper Object that includes a ServerExitCode. If the login was successful, a BigInteger will
-     * be included that contains the private ID of the logged-in user.
+     * @return The ID of the logged-in user, or null if the log in failed and an encoded result of the trigger of the API endpoint.
      */
     public ServerObjectResponse<BigInteger> logIn(@NotNull String username, @NotNull String password){
+        //Check for invalid user input.
         if (username==null){
-            return new ServerObjectResponse<BigInteger>(null,ServerExitCode.NullUserName);
+            return new ServerObjectResponse<>(null,ServerExitCode.NullUserName);
         }
         if (password==null){
-            return new ServerObjectResponse<BigInteger>(null,ServerExitCode.NullPassword);
+            return new ServerObjectResponse<>(null,ServerExitCode.NullPassword);
         }
 
+        //Trigger the appropriate database API endpoint and handle its response.
         StatementResponse databaseResponse = DatabaseAPI.logIn(username,password,this.connection);
         boolean error=false;
         try {
             if (databaseResponse.getExitCode() == DatabaseExitCode.UnmatchedConstraint){
-                return new ServerObjectResponse<BigInteger>(null,ServerExitCode.UserNameNotFound);
+                return new ServerObjectResponse<>(null,ServerExitCode.UserNameNotFound);
             } else if (databaseResponse.getExitCode() == DatabaseExitCode.UnmetCondition){
-                return new ServerObjectResponse<BigInteger>(null,ServerExitCode.WrongPassword);
+                return new ServerObjectResponse<>(null,ServerExitCode.WrongPassword);
             } else if (databaseResponse.getExitCode() != DatabaseExitCode.Success || !databaseResponse.getStatement().getResultSet().next()){
                 error=true;
-                return new ServerObjectResponse<BigInteger>(null,ServerExitCode.DatabaseError);
+                return new ServerObjectResponse<>(null,ServerExitCode.DatabaseError);
             }
-            return new ServerObjectResponse<BigInteger>
+            return new ServerObjectResponse<>
                     (databaseResponse.getStatement().getResultSet().getBigDecimal("id").toBigIntegerExact(),
                             ServerExitCode.Success);
         } catch (SQLException | ArithmeticException e){
             error=true;
-            return new ServerObjectResponse<BigInteger>(null,ServerExitCode.DatabaseError);
+            return new ServerObjectResponse<>(null,ServerExitCode.DatabaseError);
         } finally {
             try {
                 databaseResponse.getStatement().close();
@@ -72,11 +85,20 @@ public class Server {
             }
         }
     }
+
+    /**
+     * Removes from the database the user entry corresponding to the given user ID.
+     * It is used for deleting ones own personal account.
+     * @param userID The ID of the user requesting for their account to be removed.
+     * @return An encoded result of attempting to remove a user.
+     */
     public ServerResponse removeCurrentUser(@NotNull BigInteger userID){
+        //Check for invalid user input.
         if (userID==null){
             return new ServerResponse(ServerExitCode.NullUserID);
         }
 
+        //Trigger the appropriate database API endpoint and handle its response.
         StatementResponse databaseResponse = DatabaseAPI.removeUser(userID,this.connection);
         if (databaseResponse.getExitCode() == DatabaseExitCode.Success
                 && databaseResponse.getExitMessage().equals("No rows were affected.")){
@@ -87,13 +109,24 @@ public class Server {
         databaseResponse.printExitMessage();
         return new ServerResponse(ServerExitCode.DatabaseError);
     }
+
+    /**
+     * Remove from the database the entry corresponding to the Store, matching the given name.
+     * The removal can be successfully executed only by the owner of the Store or by an Admin.
+     * @param storeName The unique name of the Store marked for removal.
+     * @param userID The ID of the user requesting the Store removal.
+     * @return An encoded result of attempting to remove a Store.
+     */
     public ServerResponse removeStore(@NotNull String storeName, @NotNull BigInteger userID){
+        //Check for invalid user input.
         if (storeName==null){
             return new ServerResponse((ServerExitCode.NullStoreName));
         }
         if (userID==null){
             return new ServerResponse(ServerExitCode.NullUserID);
         }
+
+        //Trigger the appropriate database API endpoint and handle its response.
         StatementResponse databaseResponse = DatabaseAPI.removeStore(storeName,userID,this.connection);
         if (databaseResponse.getExitCode() == DatabaseExitCode.Success
                 && databaseResponse.getExitMessage().equals("No rows were affected.")){
@@ -104,7 +137,17 @@ public class Server {
         databaseResponse.printExitMessage();
         return new ServerResponse(ServerExitCode.DatabaseError);
     }
+
+    /**
+     * Remove from the database the entry corresponding to the Table, matching the store name given.
+     * The removal can be successfully executed only by the owner of the Store or by an Admin.
+     * @param tableName The unique name of the Table marked for removal
+     * @param storeName The unique name of the Store to which the Table for removal belongs.
+     * @param userID The ID of the user requesting the Table removal.
+     * @return An encoded result of attempting to remove a Table from a Store.
+     */
     public ServerResponse removeTable(@NotNull String tableName, @NotNull String storeName, @NotNull BigInteger userID){
+        //Check for invalid user input.
         if (tableName==null){
             return new ServerResponse(ServerExitCode.NullTableName);
         }
@@ -115,6 +158,7 @@ public class Server {
             return new ServerResponse(ServerExitCode.NullUserID);
         }
 
+        //Trigger the appropriate database API endpoint and handle its response.
         DatabaseResponse databaseResponse = DatabaseAPI.removeTable(tableName,storeName,userID,this.connection);
         if (databaseResponse.getExitCode() == DatabaseExitCode.Success
                 && databaseResponse.getExitMessage().equals("No rows were affected.")){
@@ -125,7 +169,17 @@ public class Server {
         databaseResponse.printExitMessage();
         return new ServerResponse(ServerExitCode.DatabaseError);
     }
+
+    /**
+     * Adds a new user to the database, using the given input.
+     * @param fullName The first and last name of the new user. Can be up to 32 characters long.
+     * @param username The unique username of the new user. Must be 6-32 characters long.
+     * @param password The password of the new user, used for logging in. Must pass the "isStrongPassword(String)" check. Must be at least 8 characters long.
+     * @param email The unique email of the user used for communication. Must pass the "isValidEmail(String)" check.
+     * @return An encoded result of attempting to add a new User.
+     */
     public ServerResponse addUser(@NotNull String fullName, @NotNull String username, @NotNull String password, @NotNull String email){
+        //Check for invalid user input.
         if (fullName==null){
             return new ServerResponse(ServerExitCode.NullFullName);
         } else if (fullName.length()>32){
@@ -152,6 +206,7 @@ public class Server {
             return new ServerResponse(ServerExitCode.InvalidEmail);
         }
 
+        //Trigger the appropriate database API endpoint and handle its response.
         StatementResponse databaseResponse = DatabaseAPI.addUser(fullName, username, password, email,this.connection);
         if (databaseResponse.getExitCode() == DatabaseExitCode.Success){
             return new ServerResponse(ServerExitCode.Success);
@@ -163,7 +218,17 @@ public class Server {
         databaseResponse.printExitMessage();
         return new ServerResponse(ServerExitCode.DatabaseError);
     }
+
+    /**
+     * Adds a new Store to the database, using the given input.
+     * @param storeName The unique name of the Store. Can be up to 32 characters long.
+     * @param userID The ID of the user requesting the Store addition.
+     * @param x The horizontal length of the grid used to display the store in the GUI. Must be positive.
+     * @param y The vertical length of the grid used to display the store in the GUI. Must be positive.
+     * @return An encoded result of attempting to add a new Store.
+     */
     public ServerResponse addStore(@NotNull String storeName, @NotNull BigInteger userID, int x, int y){
+        //Check for invalid user input.
         if (storeName==null){
             return new ServerResponse(ServerExitCode.NullStoreName);
         } else if (storeName.length()>32){
@@ -179,6 +244,7 @@ public class Server {
             return new ServerResponse(ServerExitCode.InvalidYDimension);
         }
 
+        //Trigger the appropriate database API endpoint and handle its response.
         StatementResponse databaseResponse = DatabaseAPI.addStore(storeName,userID,x,y,this.connection);
         if (databaseResponse.getExitCode() == DatabaseExitCode.Success){
             return new ServerResponse(ServerExitCode.Success);
@@ -190,8 +256,22 @@ public class Server {
         databaseResponse.printExitMessage();
         return new ServerResponse(ServerExitCode.DatabaseError);
     }
+
+    /**
+     * Add a new Table, using the given input, to the database.
+     * The new Table must be owned by an existing Store, and the Store must be owned by the user requesting the addition.
+     * @param tableName The name of the table to be added. Can be up to 8 characters long.
+     * @param x The horizontal position on the Store grid at which the new Table is placed. Must be positive.
+     * @param y The vertical position on the Store grid at which the new Table is placed. Must be positive.
+     * @param people The number of people that can sit on the new Table. Must be positive.
+     * @param state The state of occupation of the new Table.
+     * @param storeName The unique name of the Store to which the new Table will belong.
+     * @param userID The ID of the user requesting the addition of a new Table to the specified Store.
+     * @return An encoded result of attempting to add a new Table.
+     */
     public ServerResponse addTable(@NotNull String tableName, int x, int y, int people
             ,@NotNull StateOfTable state, @NotNull String storeName, @NotNull BigInteger userID){
+        //Check for invalid user input.
         if (tableName==null){
             return new ServerResponse(ServerExitCode.NullTableName);
         } else if (tableName.length()>8){
@@ -216,6 +296,7 @@ public class Server {
             return new ServerResponse(ServerExitCode.InvalidPeopleNumber);
         }
 
+        //Check if the user owns the Store, to which they attempt to add a new Table.
         StatementResponse databaseResponse = DatabaseAPI.getStoreOwner(storeName,this.connection);
         BigInteger storeID;
         boolean error=true;
@@ -244,6 +325,7 @@ public class Server {
             }
         }
 
+        //Trigger the appropriate database API endpoint and handle its response.
         databaseResponse = DatabaseAPI.addTable(tableName,storeID,x,y,people,state.toString(),this.connection);
         if (databaseResponse.getExitCode() == DatabaseExitCode.Success){
             return new ServerResponse(ServerExitCode.Success);
@@ -256,46 +338,61 @@ public class Server {
         databaseResponse.printExitMessage();
         return new ServerResponse(ServerExitCode.DatabaseError);
     }
+
+    /**
+     * Get a Store from the database.
+     * The data from the database is used to populate a Store object, which is then returned.
+     * The data which will populate the Store object are the ones requested by 'options', minus those that the User
+     * doesn't have access to.
+     * @param storeName The unique name of the Store.
+     * @param userID The ID of the user attempting to retrieve the Store data.
+     * @param options Requested fields of the Store.
+     * @return An object Store and an encoded result of the attempt to
+     * get a Store from the database.
+     */
     public ServerObjectResponse<Store> getStore(@NotNull String storeName,BigInteger userID, HashMap<String,Boolean> options){
+        //Check for invalid user input.
         if (storeName==null) {
-            return new ServerObjectResponse<Store>(null,ServerExitCode.NullStoreName);
+            return new ServerObjectResponse<>(null,ServerExitCode.NullStoreName);
         }
 
+        //Trigger the appropriate database API endpoint and handle its response.
         StatementResponse databaseResponse = DatabaseAPI.getStore(storeName,this.connection);
         if (databaseResponse.getExitCode() != DatabaseExitCode.Success){
             databaseResponse.printExitMessage();
-            return new ServerObjectResponse<Store>(null,ServerExitCode.DatabaseError);
+            return new ServerObjectResponse<>(null,ServerExitCode.DatabaseError);
         } else{
             try {
+                //Get the results and obfuscate any sensitive data and any data that wasn't explicitly requested inside 'options'.
                 ResultSet rs = databaseResponse.getStatement().getResultSet();
                 if (rs.next()) {
                     BigInteger id=rs.getBigDecimal("id").toBigIntegerExact()
                             ,owner=rs.getBigDecimal("owner").toBigIntegerExact();
                     Integer X=rs.getInt("grid_x"),Y=rs.getInt("grid_y");
                     String name=rs.getString("name");
-                    if (userID==null || !Objects.equals(id, userID) || options.get("id")==null || !options.get("id")){
+                    if (userID==null || !Objects.equals(id, userID) || Boolean.FALSE.equals(options.get("id"))){
                         id=null;
                     }
-                    if (options.get("name")==null || !options.get("name")){
+                    if (Boolean.FALSE.equals(options.get("name"))){
                         name=null;
                     }
-                    if (userID==null || !Objects.equals(id, userID) || options.get("owner")==null || !options.get("owner")){
+                    if (userID==null || !Objects.equals(id, userID) || Boolean.FALSE.equals(options.get("owner"))){
                         owner=null;
                     }
-                    if (options.get("grid_x")==null || !options.get("grid_x")){
+                    if (Boolean.FALSE.equals(options.get("grid_x"))){
                         X=null;
                     }
-                    if (options.get("grid_y")==null || !options.get("grid_y")){
+                    if (Boolean.FALSE.equals(options.get("grid_y"))){
                         Y=null;
                     }
-                    return new ServerObjectResponse<Store>(new Store(id,name,owner,X,Y,null),ServerExitCode.Success);
+                    return new ServerObjectResponse<>(new Store(id,name,owner,X,Y,null),ServerExitCode.Success);
                 }
                 else{
-                    return new ServerObjectResponse<Store>(null,ServerExitCode.StoreNotFound);
+                    return new ServerObjectResponse<>(null,ServerExitCode.StoreNotFound);
                 }
             } catch (SQLException | NullPointerException e) {
                 databaseResponse.printExitMessage();
-                return new ServerObjectResponse<Store>(null,ServerExitCode.DatabaseError);
+                return new ServerObjectResponse<>(null,ServerExitCode.DatabaseError);
             } finally {
                 try {
                     databaseResponse.getStatement().close();
@@ -304,7 +401,22 @@ public class Server {
             }
         }
     }
+
+    /**
+     * Get all Stores from the database.
+     * Used for getting surface level information about all existing stores, like their name.
+     * Detailed information about a Store should be requested using its unique name in a separate request.
+     * This API endpoint is computationally expensive. Avoid when possible.
+     * The data from the database is used to populate an ArrayList of Store objects, which is then returned.
+     * The data which will populate the Store objects are the ones requested by 'options', minus those that the User
+     * doesn't have access to.
+     * @param userID The ID of the user attempting to retrieve the Store data.
+     * @param options Requested fields of the Store.
+     * @return An ArrayList of objects Store and an encoded result of the attempt to
+     * get all Stores from the database.
+     */
     public ServerArrayResponse<Store> getStores(BigInteger userID, HashMap<String,Boolean> options){
+        //Trigger the appropriate database API endpoint and handle its response.
         StatementResponse databaseResponse = DatabaseAPI.getStores(this.connection);
         if (databaseResponse.getExitCode()!= DatabaseExitCode.Success){
             try {
@@ -312,8 +424,9 @@ public class Server {
             } catch (SQLException ignored){
             }
             databaseResponse.printExitMessage();
-            return new ServerArrayResponse<Store>(null,ServerExitCode.DatabaseError);
+            return new ServerArrayResponse<>(null,ServerExitCode.DatabaseError);
         }
+        //Get the results and obfuscate any sensitive data and any data that wasn't explicitly requested inside 'options'.
         ResultSet rs;
         try {
             rs = databaseResponse.getStatement().getResultSet();
@@ -324,27 +437,27 @@ public class Server {
                 String name = rs.getString("name");
                 Integer grid_x=rs.getInt("grid_x")
                         ,grid_y=rs.getInt("grid_y");
-                if (userID==null || !Objects.equals(id, userID) || options.get("id")==null || !options.get("id")){
+                if (userID==null || !Objects.equals(id, userID) || Boolean.FALSE.equals(options.get("id"))){
                     id=null;
                 }
-                if (options.get("name")==null || !options.get("name")){
+                if (Boolean.FALSE.equals(options.get("name"))){
                     name=null;
                 }
-                if (userID==null || !Objects.equals(id, userID) || options.get("owner")==null || !options.get("owner")){
+                if (userID==null || !Objects.equals(id, userID) || Boolean.FALSE.equals(options.get("owner"))){
                     owner=null;
                 }
-                if (options.get("grid_x")==null || !options.get("grid_x")){
+                if (Boolean.FALSE.equals(options.get("grid_x"))){
                     grid_x=null;
                 }
-                if (options.get("grid_y")==null || !options.get("grid_y")){
+                if (Boolean.FALSE.equals(options.get("grid_y"))){
                     grid_y=null;
                 }
                 stores.add(new Store(id,name,owner,grid_x,grid_y,null));
             }
-            return new ServerArrayResponse<Store>(stores,ServerExitCode.Success);
+            return new ServerArrayResponse<>(stores,ServerExitCode.Success);
         } catch (SQLException e){
             databaseResponse.printExitMessage();
-            return new ServerArrayResponse<Store>(null,ServerExitCode.DatabaseError);
+            return new ServerArrayResponse<>(null,ServerExitCode.DatabaseError);
         } finally{
             try {
                 databaseResponse.getStatement().close();
@@ -352,11 +465,24 @@ public class Server {
             }
         }
     }
+
+    /**
+     * The data from the database is used to populate an ArrayList of Table objects, which is then returned.
+     * The data which will populate the Table objects are the ones requested by 'options', minus those that the User
+     * doesn't have access to.
+     * @param storeName The unique name of the Store which owns the requested Tables.
+     * @param userID The ID of the user attempting to retrieve the Store data.
+     * @param options Requested fields of the Store.
+     * @return An ArrayList of objects Table and an encoded result of the attempt to
+     * get all Stores from the database.
+     */
     public ServerArrayResponse<Table> getTables(@NotNull String storeName, BigInteger userID, HashMap<String,Boolean> options){
+        //Check for invalid user input.
         if (storeName==null){
-            return new ServerArrayResponse<Table>(null,ServerExitCode.NullStoreID);
+            return new ServerArrayResponse<>(null,ServerExitCode.NullStoreID);
         }
 
+        //Trigger the appropriate database API endpoint and handle its response.
         StatementResponse databaseResponse = DatabaseAPI.getTables(storeName,this.connection);
         if (databaseResponse.getExitCode()!= DatabaseExitCode.Success){
             try {
@@ -364,8 +490,9 @@ public class Server {
             } catch (SQLException ignored){
             }
             databaseResponse.printExitMessage();
-            return new ServerArrayResponse<Table>(null,ServerExitCode.DatabaseError);
+            return new ServerArrayResponse<>(null,ServerExitCode.DatabaseError);
         }
+        //Get the results and obfuscate any sensitive data and any data that wasn't explicitly requested inside 'options'.
         ResultSet rs;
         try {
             rs = databaseResponse.getStatement().getResultSet();
@@ -377,33 +504,33 @@ public class Server {
                 Integer pos_x=rs.getInt("position_x")
                         ,pos_y=rs.getInt("position_y")
                         ,people=rs.getInt("people");
-                if (userID==null || !Objects.equals(id, userID) || options.get("id")==null || !options.get("id")){
+                if (userID==null || !Objects.equals(id, userID) || Boolean.FALSE.equals(options.get("id"))){
                     id=null;
                 }
-                if (options.get("name")==null || !options.get("name")){
+                if (Boolean.FALSE.equals(options.get("name"))){
                     name=null;
                 }
-                if (userID==null || !Objects.equals(id, userID) || options.get("store")==null || !options.get("store")){
+                if (userID==null || !Objects.equals(id, userID) || Boolean.FALSE.equals(options.get("store"))){
                     store=null;
                 }
-                if (options.get("position_x")==null || !options.get("position_x")){
+                if (Boolean.FALSE.equals(options.get("position_x"))){
                     pos_x=null;
                 }
-                if (options.get("position_y")==null || !options.get("position_y")){
+                if (Boolean.FALSE.equals(options.get("position_y"))){
                     pos_y=null;
                 }
-                if (options.get("people")==null || !options.get("people")){
+                if (Boolean.FALSE.equals(options.get("people"))){
                     people=null;
                 }
-                if (options.get("state")==null || !options.get("state")){
+                if (Boolean.FALSE.equals(options.get("state"))){
                     state=null;
                 }
                 tables.add(new Table(id,name,store,pos_x,pos_y,people,state));
             }
-            return new ServerArrayResponse<Table>(tables,ServerExitCode.Success);
+            return new ServerArrayResponse<>(tables,ServerExitCode.Success);
         } catch (SQLException e){
             databaseResponse.printExitMessage();
-            return new ServerArrayResponse<Table>(null,ServerExitCode.DatabaseError);
+            return new ServerArrayResponse<>(null,ServerExitCode.DatabaseError);
         } finally{
             try {
                 databaseResponse.getStatement().close();
@@ -411,6 +538,12 @@ public class Server {
             }
         }
     }
+
+    /**
+     * Check if the given password matches certain criteria to characterize it as strong.
+     * @param password The password to be checked.
+     * @return True if the password matches all criteria, and false otherwise.
+     */
     private boolean isStrongPassword(String password){
         String LOWERCASE_REGEX = ".*[a-z].*";
         String UPPERCASE_REGEX = ".*[A-Z].*";
@@ -431,6 +564,12 @@ public class Server {
                 hasDigit.matches() &&
                 hasSpecialChar.matches();
     }
+
+    /**
+     * Check if the given String corresponds to a valid email address.
+     * @param email The String to be checked.
+     * @return True if the given String corresponds to a valid email address, and false otherwise.
+     */
     private boolean isValidEmail(String email){
         String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 

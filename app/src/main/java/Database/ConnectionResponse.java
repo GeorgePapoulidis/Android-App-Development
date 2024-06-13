@@ -23,7 +23,7 @@ public class ConnectionResponse extends DatabaseResponse{
     }
 
     /**
-     * @return The currently save connection to the database.
+     * @return A Connection which is currently available for communication with the database.
      */
     public Connection getConnection(){
         return this.connection;

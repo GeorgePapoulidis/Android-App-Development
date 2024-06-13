@@ -25,7 +25,7 @@ public abstract class DatabaseResponse {
     }
 
     /**
-     * @return A textual representation of the result of the corresponding database query execution.
+     * @return The humanly readable result of the corresponding database query execution.
      */
     public String getExitMessage(){
         return this.exitMessage;
@@ -43,7 +43,7 @@ public abstract class DatabaseResponse {
     }
 
     /**
-     * @return An encoded representation of the result of the corresponding database query execution.
+     * @return The encoded result of the corresponding database query execution.
      */
     public DatabaseExitCode getExitCode(){
         return this.exitCode;
