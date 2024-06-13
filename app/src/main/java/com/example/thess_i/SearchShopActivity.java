@@ -1,5 +1,6 @@
 package com.example.thess_i;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -27,7 +28,7 @@ public class SearchShopActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String query = searchEditText.getText().toString();
-                /*for (DataHolder.Shop shop : DataHolder.shops) {
+                for (DataHolder.Shop shop : DataHolder.shops) {
                     if (shop.name.equalsIgnoreCase(query)) {
                         Intent intent = new Intent(SearchShopActivity.this, TableGridActivity.class);
                         intent.putExtra("shopName", shop.name);
@@ -37,7 +38,7 @@ public class SearchShopActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                resultTextView.setText("Shop not found");*/
+                resultTextView.setText("Shop not found");
 
             }
         });

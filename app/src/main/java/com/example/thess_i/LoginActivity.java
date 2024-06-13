@@ -1,17 +1,18 @@
 package com.example.thess_i;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.math.BigInteger;
 
-import Server.*;
+import ModuleName.Platform;
+import Server.ServerAPI;
+import Server.ServerObjectResponse;
+import Server.ServerExitCode;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,21 +41,22 @@ public class LoginActivity extends AppCompatActivity {
                 String username = usernameEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
-
-                ServerObjectResponse<BigInteger> response = logIn(username, password);
-
-
-                if (response.getExitCode() == ServerExitCode.Success) {
-                    BigInteger userID = response.getData();
-                    Intent intent = new Intent(LoginActivity.this,AddShopActivity.class);
-                    intent.putExtra("userID", userID.toString()); // Μεταφορά του userID στο MainActivity
+                if (DataHolder.admin.username.equals(username) && DataHolder.admin.password.equals(password)) {
+                    Intent intent = new Intent(LoginActivity.this, AddShopActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
-                    // Αποτυχία σύνδεσης, εμφάνιση κατάλληλου μηνύματος στον χρήστη
-                    // Παράδειγμα: εμφάνιση μηνύματος λάθους
-                    // Εδώ μπορείτε να προσθέσετε οποιαδήποτε άλλη λειτουργία απότυχε
+                    // Handle failed login
                 }
+                /**String result= Platform.logIn(username,password);
+                if(result.equals("Success")){
+                    Intent intent = new Intent(LoginActivity.this, AddShopActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                else{
+                    System.out.println("Bale pop edw");
+                }*/
             }
         });
 
@@ -72,7 +74,5 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
     }
 }

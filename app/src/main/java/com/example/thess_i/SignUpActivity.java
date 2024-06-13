@@ -1,6 +1,8 @@
 package com.example.thess_i;
 
 
+import ModuleName.Platform;
+import Server.ServerAPI;
 import Server.ServerResponse;
 import Server.ServerExitCode;
 
@@ -32,20 +34,18 @@ public class SignUpActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fullName = fullnameEditText.getText().toString();
-                String username = usernameEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
-                String email = emailEditText.getText().toString();
+                String fullName=fullnameEditText.getText().toString();
+                String username=usernameEditText.getText().toString();
+                String password=passwordEditText.getText().toString();
+                String email=emailEditText.getText().toString();
 
-
-                ServerResponse response = signUp(fullName, username, password, email);
-
-
-                if (response.getExitCode() == ServerExitCode.Success) {
-                    showSuccessDialog();
-                    Intent intent=new Intent(SignUpActivity.this, LoginActivity.class);
-                } else {
-                    showErrorDialog(response.getExitCode());
+                String result= Platform.addUser(fullName,username,password,email);
+                if(result.equals("Success")){
+                    Intent intent = new Intent(SignUpActivity.this, AddShopActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else {
+                    System.out.println("Bale pop edw");
                 }
             }
         });
@@ -104,8 +104,9 @@ public class SignUpActivity extends AppCompatActivity {
 
 
     private ServerResponse signUp(String fullName, String username, String password, String email) {
-
-        if (username.isEmpty()) {
+        ServerAPI myServer=new ServerAPI();
+        return myServer.addUser(fullName,username,password,email);
+        /*if (username.isEmpty()) {
             return new ServerResponse(ServerExitCode.NullUserName);
         } else if (password.isEmpty()) {
             return new ServerResponse(ServerExitCode.NullPassword);
@@ -114,8 +115,7 @@ public class SignUpActivity extends AppCompatActivity {
         } else if (email.isEmpty()) {
             return new ServerResponse(ServerExitCode.NullEmail);
         } else {
-
             return new ServerResponse(ServerExitCode.Success);
-        }
+        }*/
     }
 }
