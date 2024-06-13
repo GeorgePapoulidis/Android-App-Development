@@ -1,5 +1,8 @@
 package Database;
 
+/**
+ * Contains a textual representation of all possible outcomes when attempting to execute a query to the database.
+ */
 public enum DatabaseExitCode {
     Success,
     EmptyQuery,

@@ -15,7 +15,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Properties;
 
-
+/**
+ * An API Class that allows execution of queries to the database.
+ * Every method must always return an object of type DatabaseResponse or one of its children.
+ */
 public class DatabaseAPI {
     private static final int VALIDATION_TIMEOUT=10;
     public DatabaseAPI(){
