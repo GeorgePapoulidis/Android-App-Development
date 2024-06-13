@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/backround"
+    android:padding="16dp">
+
+
+    <TextView
+
+        android:layout_width="191dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="16dp"
+        android:text=" Thess-i"
+        android:textSize="50sp"
+        android:textStyle="bold" />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="100dp" />
+
+    <Button
+        android:id="@+id/button_user"
+        android:layout_width="196dp"
+        android:layout_height="73dp"
+        android:text="User"
+        android:textSize="25sp"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="30dp" />
+
+    <Button
+        android:id="@+id/button_admin"
+        android:layout_width="196dp"
+        android:layout_height="73dp"
+        android:text="Admin"
+        android:textSize="25sp"/>/>
+</LinearLayout>
