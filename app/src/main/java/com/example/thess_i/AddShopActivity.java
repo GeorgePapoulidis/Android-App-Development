@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
+
 public class AddShopActivity extends AppCompatActivity {
 
     private EditText shopNameEditText, tableCountEditText;
