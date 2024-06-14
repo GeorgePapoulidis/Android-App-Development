@@ -371,7 +371,12 @@ public class DatabaseAPI {
                 "LIMIT 1;";
         StatementResponse statementResponse = DatabaseAPI.executeQuery(input, query, "logIn(String,String,Connection)",
                 "get information of user with specified Username", true, true, connection);
-
+        if (statementResponse.getStatement() == null){
+            String exitMessage = "Response for method DatabaseAPI.logIn(String,String,Connection):\n";
+            exitMessage = exitMessage.concat("Executing Query to find account with specified Username: " +
+                    "Query execution failed.");
+            return new StatementResponse(null,exitMessage, statementResponse.getExitCode());
+        }
         //Retrieve the ID, salt and password from the database response.
         byte[] salt;
         byte[] databaseHashedPassword;
