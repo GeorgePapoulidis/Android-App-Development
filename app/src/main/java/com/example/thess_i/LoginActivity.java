@@ -41,6 +41,44 @@ public class LoginActivity extends AppCompatActivity {
                 String username = usernameEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
+                /*
+                otidipote einai call sto database, prepei na trexei kapos etsi upoxreotika.
+                Mporo na kaleso ena method, kai na kano handle to result tou mesa ston ActionListener tou koumpiou.
+                Autos o kodikas bazei ena method na trexei se background thread.
+                Alla me to future.get() kano block to main thread gia na perimeno to result.
+                Einai kaki lusi alla it works for now.
+                Uparxoun antistoixes diafaneies sto elearning.
+                */
+                /*
+                autos o kodikas tha empaine edo mesa, sto onClick
+
+                Future<String> future = executorService.submit(() -> w());
+                new Thread(() -> {
+                    try {
+                        String result = future.get(); // This will block until the result is available
+                        System.out.println(result);
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+                */
+
+                /*
+                to method pou ektelesa gia testing einai to w()
+                auti mporei na einai mai opoiadipote methodos, px tou Interconnection, i akomi kai tou LoginActivity
+                private String w() {
+                    try {
+                        Thread.sleep(10000); // Simulate 10 seconds delay
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return "Hello. I finished";
+                }
+                 */
+
+
+
+
                 if (DataHolder.admin.username.equals(username) && DataHolder.admin.password.equals(password)) {
                     Intent intent = new Intent(LoginActivity.this, AddShopActivity.class);
                     startActivity(intent);
