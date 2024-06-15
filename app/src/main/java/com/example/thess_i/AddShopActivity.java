@@ -26,26 +26,30 @@ public class AddShopActivity extends AppCompatActivity {
         addShopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String shopName = shopNameEditText.getText().toString();
-                int tableCount = Integer.parseInt(tableCountEditText.getText().toString());
+                /**String shopName = shopNameEditText.getText().toString();
+                int tableCount = Integer.parseInt(tableCountEditText.getText().toString());*/
 
-                DataHolder.Shop newShop = new DataHolder.Shop(shopName);
+                /**DataHolder.Shop newShop = new DataHolder.Shop(shopName);
                 for (int i = 1; i <= tableCount; i++) {
                     newShop.tables.add(new DataHolder.Table(i, 4, true)); // Default capacity to 4 and available
                 }
-                DataHolder.shops.add(newShop);
+                DataHolder.shops.add(newShop);*/
 
                 // Start TableGridActivity
                 Intent intent = new Intent(AddShopActivity.this, TableGridActivity.class);
-                intent.putExtra("shopName", shopName);
-                intent.putExtra("isAdmin", true);
+                /**intent.putExtra("shopName", shopName);
+                intent.putExtra("isAdmin", true);*/
                 startActivity(intent);
+                finish();
+
             }
         });
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent=new Intent(AddShopActivity.this, LoginActivity.class);
+                startActivity(intent);
                 finish();
             }
         });

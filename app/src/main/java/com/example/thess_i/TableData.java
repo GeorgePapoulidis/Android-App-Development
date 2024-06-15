@@ -1,5 +1,5 @@
 
-package com.example.thess_i;
+/**package com.example.thess_i;
 
 public class TableData {
     private String capacity;
@@ -17,4 +17,4 @@ public class TableData {
     public boolean isAvailable() {
         return isAvailable;
     }
-}
+}*/

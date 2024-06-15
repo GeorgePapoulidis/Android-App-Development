@@ -5,11 +5,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.math.BigInteger;
 
-import ModuleName.Platform;
 import Server.ServerAPI;
 import Server.ServerObjectResponse;
 import Server.ServerExitCode;
@@ -38,8 +39,23 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
+                /**String username = usernameEditText.getText().toString();
+                 String password = passwordEditText.getText().toString();
+
+                 new Thread(() -> {
+                 ServerObjectResponse<BigInteger> response = logIn(username, password);
+                 runOnUiThread(() -> {
+                 if (response.getExitCode() == ServerExitCode.Success) {
+                 BigInteger userID = response.getData();
+                 Intent intent = new Intent(LoginActivity.this, AddShopActivity.class);
+                 intent.putExtra("userID", userID.toString());
+                 startActivity(intent);
+                 finish();
+                 } else {
+                 Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
+                 }
+                 });
+                 }).start();*/
 
                 /*
                 otidipote einai call sto database, prepei na trexei kapos etsi upoxreotika.
@@ -76,25 +92,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
                  */
 
-
-
-
-                if (DataHolder.admin.username.equals(username) && DataHolder.admin.password.equals(password)) {
-                    Intent intent = new Intent(LoginActivity.this, AddShopActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    // Handle failed login
-                }
-                /**String result= Platform.logIn(username,password);
-                if(result.equals("Success")){
-                    Intent intent = new Intent(LoginActivity.this, AddShopActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-                else{
-                    System.out.println("Bale pop edw");
-                }*/
+                Intent intent = new Intent(LoginActivity.this, AddShopActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
@@ -103,12 +103,15 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent=new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
                 finish();
             }
         });

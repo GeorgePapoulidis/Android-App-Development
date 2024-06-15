@@ -2,6 +2,7 @@ package com.example.thess_i;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +14,7 @@ public class TableGridActivity extends AppCompatActivity {
     private Button backButton;
     private GridLayout gridLayout;
     private boolean isAdmin;
-    private DataHolder.Shop currentShop;
+    //private DataHolder.Shop currentShop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,22 +28,22 @@ public class TableGridActivity extends AppCompatActivity {
         isAdmin = getIntent().getBooleanExtra("isAdmin", false);
 
         // Find the shop by name
-        for (DataHolder.Shop shop : DataHolder.shops) {
+        /**for (DataHolder.Shop shop : DataHolder.shops) {
             if (shop.name.equals(shopName)) {
                 currentShop = shop;
                 break;
             }
-        }
+        }*/
 
-        if (currentShop == null) {
+        /**if (currentShop == null) {
             Toast.makeText(this, "Shop not found", Toast.LENGTH_SHORT).show();
             finish();
             return;
-        }
+        }*/
 
-        setTitle("Tables for " + currentShop.name);
+        /**setTitle("Tables for " + currentShop.name);*/
 
-        for (DataHolder.Table table : currentShop.tables) {
+        /**for (DataHolder.Table table : currentShop.tables) {
             final int tableNumber = table.number;
             Button button = new Button(this);
             updateTableButton(button, table);
@@ -55,18 +56,21 @@ public class TableGridActivity extends AppCompatActivity {
             });
             gridLayout.addView(button);
 
-        }
+        }*/
 
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent=new Intent(TableGridActivity.this, AddShopActivity.class);
+                startActivity(intent);
                 finish();
+
             }
         });
     }
 
-    private void updateTableButton(Button button, DataHolder.Table table) {
+    /**private void updateTableButton(Button button, DataHolder.Table table) {
         String availabilityText = table.isAvailable ? "Διαθέσιμο" : "Μη Διαθέσιμο";
         button.setText("Τραπέζι " + table.number + "\n" + table.capacity + " άτομα\n" + availabilityText);
     }
@@ -101,5 +105,5 @@ public class TableGridActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
+    }*/
 }

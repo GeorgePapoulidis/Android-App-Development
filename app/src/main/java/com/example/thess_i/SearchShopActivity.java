@@ -27,7 +27,7 @@ public class SearchShopActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String query = searchEditText.getText().toString();
+                /**String query = searchEditText.getText().toString();
                 for (DataHolder.Shop shop : DataHolder.shops) {
                     if (shop.name.equalsIgnoreCase(query)) {
                         Intent intent = new Intent(SearchShopActivity.this, TableGridActivity.class);
@@ -35,17 +35,20 @@ public class SearchShopActivity extends AppCompatActivity {
                         intent.putExtra("tableCount", shop.tables.size());
                         intent.putExtra("isAdmin", false);
                         startActivity(intent);
-                        return;
+                        return query;
                     }
                 }
                 resultTextView.setText("Shop not found");
 
+                return query;*/
             }
         });
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent=new Intent(SearchShopActivity.this, MainActivity.class);
+                startActivity(intent);
                 finish();
             }
         });

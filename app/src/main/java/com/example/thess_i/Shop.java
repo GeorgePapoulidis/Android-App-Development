@@ -1,4 +1,4 @@
-package com.example.thess_i;
+/**package com.example.thess_i;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,4 +20,4 @@ Shop {
     public List<TableData> getTables() {
         return tables;
     }
-}
+}*/

@@ -1,23 +1,33 @@
 package com.example.thess_i;
 
 
-import ModuleName.Platform;
+
 import Server.ServerAPI;
+
 import Server.ServerResponse;
-import Server.ServerExitCode;
+
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import androidx.appcompat.app.AlertDialog;
+
+
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.math.BigInteger;
 
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText usernameEditText, fullnameEditText, emailEditText, passwordEditText;
     private Button signUpButton, switchToLoginButton;
+
+    private ServerResponse signUp(String fullName,String username,String password,String email){
+        ServerAPI myServer=new ServerAPI();
+        return myServer.addUser(fullName, username, password, email);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +44,28 @@ public class SignUpActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fullName=fullnameEditText.getText().toString();
+                /**String fullName=fullnameEditText.getText().toString();
                 String username=usernameEditText.getText().toString();
                 String password=passwordEditText.getText().toString();
                 String email=emailEditText.getText().toString();
 
-                String result= Platform.addUser(fullName,username,password,email);
+                new Thread(() -> {
+                    ServerResponse response=signUp(fullName,username,password,email);
+                    runOnUiThread(() -> {
+                        if (response.getExitCode() == ServerExitCode.Success) {
+                            //BigInteger userID = response.getData();
+                            Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                            //intent.putExtra("userID", userID.toString());
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            //Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }).start();
+
+
+                /**String result= Platform.addUser(fullName,username,password,email);
                 if(result.equals("Success")){
                     Intent intent = new Intent(SignUpActivity.this, AddShopActivity.class);
                     startActivity(intent);
@@ -47,75 +73,27 @@ public class SignUpActivity extends AppCompatActivity {
                 }else {
                     System.out.println("Bale pop edw");
                 }
+                return fullName;*/
+                Intent intent = new Intent(SignUpActivity.this, AddShopActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
         switchToLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent=new Intent(SignUpActivity.this, LoginActivity.class);
+                startActivity(intent);
                 finish();
+
             }
         });
     }
 
 
-    private void showSuccessDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
-        builder.setTitle("Επιτυχής Εγγραφή");
-        builder.setMessage("Η εγγραφή σας ολοκληρώθηκε επιτυχώς!");
-
-        builder.setPositiveButton("ΟΚ", null);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
 
-    private void showErrorDialog(ServerExitCode exitCode) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
-        builder.setTitle("Αποτυχία Εγγραφής");
-        builder.setMessage(getErrorMessage(exitCode));
-
-        builder.setPositiveButton("ΟΚ", null);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
 
-    private String getErrorMessage(ServerExitCode exitCode) {
-        switch (exitCode) {
-            case NullUserName:
-                return "Το όνομα χρήστη δεν μπορεί να είναι κενό.";
-            case NullPassword:
-                return "Ο κωδικός πρόσβασης δεν μπορεί να είναι κενός.";
-            case NullFullName:
-                return "Το ονοματεπώνυμο δεν μπορεί να είναι κενό.";
-            case NullEmail:
-                return "Το email δεν μπορεί να είναι κενό.";
-            case UserNameExists:
-                return "Το όνομα χρήστη υπάρχει ήδη. Παρακαλώ επιλέξτε άλλο όνομα.";
-            case EmailExists:
-                return "Το email χρησιμοποιείται ήδη για άλλο λογαριασμό. Παρακαλώ χρησιμοποιήστε διαφορετικό email.";
-            default:
-                return "Παρουσιάστηκε σφάλμα κατά την εγγραφή.";
-        }
-    }
-
-
-    private ServerResponse signUp(String fullName, String username, String password, String email) {
-        ServerAPI myServer=new ServerAPI();
-        return myServer.addUser(fullName,username,password,email);
-        /*if (username.isEmpty()) {
-            return new ServerResponse(ServerExitCode.NullUserName);
-        } else if (password.isEmpty()) {
-            return new ServerResponse(ServerExitCode.NullPassword);
-        } else if (fullName.isEmpty()) {
-            return new ServerResponse(ServerExitCode.NullFullName);
-        } else if (email.isEmpty()) {
-            return new ServerResponse(ServerExitCode.NullEmail);
-        } else {
-            return new ServerResponse(ServerExitCode.Success);
-        }*/
-    }
 }

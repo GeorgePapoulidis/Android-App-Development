@@ -1,4 +1,4 @@
-package com.example.thess_i;
+/**package com.example.thess_i;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,4 +55,4 @@ public class DataHolder {
         adminShop.tables.add(new Table(11, 4, true));
         shops.add(adminShop);
     }
-}
+}*/
