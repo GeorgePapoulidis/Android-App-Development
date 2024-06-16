@@ -25,6 +25,7 @@ public class TableGridActivity extends AppCompatActivity {
         gridLayout = findViewById(R.id.gridLayout);
 
         String shopName = getIntent().getStringExtra("shopName");
+        //int tableNum=getIntent().getIntExtra("tableCount",0);
         isAdmin = getIntent().getBooleanExtra("isAdmin", false);
 
         // Find the shop by name
@@ -35,13 +36,12 @@ public class TableGridActivity extends AppCompatActivity {
             }
         }*/
 
-        /**if (currentShop == null) {
+       /**if (shopName == null) {
             Toast.makeText(this, "Shop not found", Toast.LENGTH_SHORT).show();
             finish();
-            return;
-        }*/
+       }*/
 
-        /**setTitle("Tables for " + currentShop.name);*/
+        /**setTitle("Tables for " + shopName);*/
 
         /**for (DataHolder.Table table : currentShop.tables) {
             final int tableNumber = table.number;
@@ -65,7 +65,6 @@ public class TableGridActivity extends AppCompatActivity {
                 Intent intent=new Intent(TableGridActivity.this, AddShopActivity.class);
                 startActivity(intent);
                 finish();
-
             }
         });
     }

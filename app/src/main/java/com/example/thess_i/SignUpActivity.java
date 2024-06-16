@@ -4,6 +4,7 @@ package com.example.thess_i;
 
 import Server.ServerAPI;
 
+import Server.ServerExitCode;
 import Server.ServerResponse;
 
 
@@ -12,7 +13,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
+import android.widget.Toast;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,12 +45,13 @@ public class SignUpActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**String fullName=fullnameEditText.getText().toString();
-                String username=usernameEditText.getText().toString();
-                String password=passwordEditText.getText().toString();
-                String email=emailEditText.getText().toString();
+              String fullName=fullnameEditText.getText().toString();
+              String username=usernameEditText.getText().toString();
+              String password=passwordEditText.getText().toString();
+              String email=emailEditText.getText().toString();
 
-                new Thread(() -> {
+                /**
+                 new Thread(() -> {
                     ServerResponse response=signUp(fullName,username,password,email);
                     runOnUiThread(() -> {
                         if (response.getExitCode() == ServerExitCode.Success) {
@@ -74,9 +76,29 @@ public class SignUpActivity extends AppCompatActivity {
                     System.out.println("Bale pop edw");
                 }
                 return fullName;*/
-                Intent intent = new Intent(SignUpActivity.this, AddShopActivity.class);
-                startActivity(intent);
-                finish();
+
+              /**ServerResponse response=signUp(fullName,username,password,email);
+              if(response.getExitCode().equals(ServerExitCode.Success)){
+                  Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                  startActivity(intent);
+                  finish();
+              }else {
+                  Toast.makeText(getApplicationContext(),String.valueOf(response.getExitCode()),Toast.LENGTH_SHORT).show();
+              }*/
+
+              new Thread(() -> {
+                  ServerResponse response=signUp(fullName,username,password,email);
+                  runOnUiThread(()-> {
+                      if(response.getExitCode().equals(ServerExitCode.Success)){
+                          Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                          startActivity(intent);
+                          finish();
+                      }else {
+                          Toast.makeText(getApplicationContext(), String.valueOf(response.getExitCode()), Toast.LENGTH_SHORT).show();
+                      }
+                  });
+              }).start();
+
             }
         });
 

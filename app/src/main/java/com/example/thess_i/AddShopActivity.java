@@ -5,13 +5,41 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.math.BigInteger;
+
+import ModuleName.StateOfTable;
+import Server.ServerAPI;
+import Server.ServerExitCode;
+import Server.ServerObjectResponse;
+import Server.ServerResponse;
 
 
 public class AddShopActivity extends AppCompatActivity {
 
     private EditText shopNameEditText, tableCountEditText;
     private Button addShopButton, backButton;
+
+    private ServerResponse addShop(String storeName,BigInteger userID,int x, int y){
+        ServerAPI myServer=new ServerAPI();
+        return myServer.addStore(storeName,userID,x,y);
+    }
+
+    private void addTables(String storeName,  BigInteger userID,int tableCount){
+        new Thread(() -> {
+            ServerAPI myServer=new ServerAPI();
+            for (int i=1;i<=tableCount;i++){
+                ServerResponse response=myServer.addTable(String.valueOf(i),1,1,4,
+                        StateOfTable.GREEN,storeName,userID);
+
+            }
+        }).start();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +54,8 @@ public class AddShopActivity extends AppCompatActivity {
         addShopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**String shopName = shopNameEditText.getText().toString();
-                int tableCount = Integer.parseInt(tableCountEditText.getText().toString());*/
+                String shopName = shopNameEditText.getText().toString();
+                int tableCount = Integer.parseInt(tableCountEditText.getText().toString());
 
                 /**DataHolder.Shop newShop = new DataHolder.Shop(shopName);
                 for (int i = 1; i <= tableCount; i++) {
@@ -35,12 +63,29 @@ public class AddShopActivity extends AppCompatActivity {
                 }
                 DataHolder.shops.add(newShop);*/
 
-                // Start TableGridActivity
+                /** Start TableGridActivity
                 Intent intent = new Intent(AddShopActivity.this, TableGridActivity.class);
-                /**intent.putExtra("shopName", shopName);
-                intent.putExtra("isAdmin", true);*/
+                intent.putExtra("shopName", shopName);
+                intent.putExtra("isAdmin", true);
                 startActivity(intent);
-                finish();
+                finish();*/
+
+                new Thread(() -> {
+                    Intent temp=getIntent();
+                    String help=getIntent().getStringExtra("userID");
+                    BigInteger userID=new BigInteger(help);
+                    ServerResponse response=addShop(shopName,userID,10,10);
+                    runOnUiThread(()-> {
+                        if(response.getExitCode().equals(ServerExitCode.Success)){
+                            addTables(shopName,userID,tableCount);
+                            Intent intent = new Intent(AddShopActivity.this, TableGridActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }else {
+                            Toast.makeText(getApplicationContext(), String.valueOf(response.getExitCode()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }).start();
 
             }
         });

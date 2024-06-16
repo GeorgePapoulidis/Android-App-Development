@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, SearchShopActivity.class);
-                //intent.putExtra("mode", "user");
+                intent.putExtra("mode", "user");
                 startActivity(intent);
                 finish();
             }
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                //intent.putExtra("mode", "admin");
+                intent.putExtra("mode", "admin");
                 startActivity(intent);
                 finish();
             }
