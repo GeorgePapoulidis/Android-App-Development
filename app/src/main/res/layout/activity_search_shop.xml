@@ -25,14 +25,14 @@
         android:text="Search"
         android:textSize="20dp"/>
 
-    <TextView
-        android:id="@+id/text_view_result"
-        android:layout_width="267dp"
+    <ListView
+        android:id="@+id/list_view_results"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:padding="16dp"
-        android:text="Results"
         android:textSize="20dp"/>
+
     <Space
         android:layout_width="0dp"
         android:layout_height="30dp" />

@@ -1,10 +1,9 @@
 package com.example.thess_i;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+
 import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
@@ -62,7 +61,16 @@ public class TableGridActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(TableGridActivity.this, AddShopActivity.class);
+                Intent helpIntent=getIntent();
+                String mode=helpIntent.getStringExtra("mode");
+                assert mode != null;
+                Intent intent;
+                if(mode.equals("user")){
+                    intent=new Intent(TableGridActivity.this, SearchShopActivity.class);
+                }else {
+                    intent=new Intent(TableGridActivity.this, AddShopActivity.class);
+                }
+
                 startActivity(intent);
                 finish();
             }
