@@ -17,5 +17,6 @@
         android:id="@+id/switch_availability"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Available" />
+        android:textOn="Available"
+        android:textOff="Unavailable"/>
 </LinearLayout>

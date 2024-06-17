@@ -57,19 +57,6 @@ public class AddShopActivity extends AppCompatActivity {
                 String shopName = shopNameEditText.getText().toString();
                 int tableCount = Integer.parseInt(tableCountEditText.getText().toString());
 
-                /**DataHolder.Shop newShop = new DataHolder.Shop(shopName);
-                for (int i = 1; i <= tableCount; i++) {
-                    newShop.tables.add(new DataHolder.Table(i, 4, true)); // Default capacity to 4 and available
-                }
-                DataHolder.shops.add(newShop);*/
-
-                /** Start TableGridActivity
-                Intent intent = new Intent(AddShopActivity.this, TableGridActivity.class);
-                intent.putExtra("shopName", shopName);
-                intent.putExtra("isAdmin", true);
-                startActivity(intent);
-                finish();*/
-
                 new Thread(() -> {
                     Intent temp=getIntent();
                     String help=getIntent().getStringExtra("userID");
@@ -79,6 +66,9 @@ public class AddShopActivity extends AppCompatActivity {
                         if(response.getExitCode().equals(ServerExitCode.Success)){
                             addTables(shopName,userID,tableCount);
                             Intent intent = new Intent(AddShopActivity.this, TableGridActivity.class);
+                            String mode=getIntent().getStringExtra("mode");
+                            intent.putExtra("mode",mode);
+                            intent.putExtra("shopName",shopName);
                             startActivity(intent);
                             finish();
                         }else {
@@ -101,5 +91,3 @@ public class AddShopActivity extends AppCompatActivity {
 
     }
 }
-
-

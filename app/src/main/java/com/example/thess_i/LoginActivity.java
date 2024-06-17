@@ -49,7 +49,9 @@ public class LoginActivity extends AppCompatActivity {
                     runOnUiThread(()-> {
                         if(response.getExitCode().equals(ServerExitCode.Success)){
                             Intent intent = new Intent(LoginActivity.this, AddShopActivity.class);
+                            String mode=getIntent().getStringExtra("mode");
                             intent.putExtra("userID",bigInteger.toString());
+                            intent.putExtra("mode",mode);
                             startActivity(intent);
                             finish();
                         }else {
