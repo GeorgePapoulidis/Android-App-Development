@@ -128,6 +128,7 @@ public class SearchShopActivity extends AppCompatActivity {
     private void openTableGrid(Store store) {
         Intent intent = new Intent(SearchShopActivity.this, TableGridActivity.class);
         String mode = getIntent().getStringExtra("mode");
+        intent.putExtra("shopName",store.getName());
         intent.putExtra("mode", mode);
         startActivity(intent);
         finish();

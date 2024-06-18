@@ -65,12 +65,14 @@ public class AddShopActivity extends AppCompatActivity {
                     runOnUiThread(()-> {
                         if(response.getExitCode().equals(ServerExitCode.Success)){
                             addTables(shopName,userID,tableCount);
-                            Intent intent = new Intent(AddShopActivity.this, TableGridActivity.class);
+                            /**Intent intent = new Intent(AddShopActivity.this, TableGridActivity.class);
                             String mode=getIntent().getStringExtra("mode");
                             intent.putExtra("mode",mode);
+                            intent.putExtra("tableCount",tableCount);
                             intent.putExtra("shopName",shopName);
                             startActivity(intent);
-                            finish();
+                            finish();*/
+                            Toast.makeText(getApplicationContext(), "Shop Added Successfully", Toast.LENGTH_SHORT).show();
                         }else {
                             Toast.makeText(getApplicationContext(), String.valueOf(response.getExitCode()), Toast.LENGTH_SHORT).show();
                         }

@@ -12,24 +12,37 @@
         android:background="@drawable/backround"
         tools:ignore="UseSwitchCompatOrMaterialXml">
 
+        <TextView
+            android:id="@+id/totalTablesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Tables: "
+            android:textSize="18sp"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/freeTablesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Free Tables: "
+            android:textSize="18sp"
+            android:padding="8dp" />
+
         <GridLayout
             android:id="@+id/gridLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="20dp"
             android:alignmentMode="alignMargins"
             android:columnCount="3"
-
             android:padding="16dp"
             android:useDefaultMargins="true">
 
         </GridLayout>
-        
+
         <Button
             android:id="@+id/button_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Back" />
-
-
     </LinearLayout>
 </ScrollView>
