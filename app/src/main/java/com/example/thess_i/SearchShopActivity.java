@@ -26,18 +26,39 @@ import Server.ServerAPI;
 import Server.ServerArrayResponse;
 import Server.ServerExitCode;
 
+/**
+ * The SearchShopActivity class provides functionality to search for shops and display the results in a list.
+ */
 public class SearchShopActivity extends AppCompatActivity {
 
+    // UI elements for search input, buttons, and results list
     private EditText searchEditText;
     private Button searchButton, backButton;
     private ListView resultListView;
 
+    /**
+     * Adapter class for displaying store information in a ListView.
+     */
     class StoreAdapter extends ArrayAdapter<Store> {
 
+        /**
+         * Constructor for StoreAdapter.
+         *
+         * @param context the context in which the adapter is used
+         * @param stores the list of stores to display
+         */
         public StoreAdapter(Context context, List<Store> stores) {
             super(context, 0, stores);
         }
 
+        /**
+         * Gets the view for each item in the list.
+         *
+         * @param position the position of the item within the adapter's data set
+         * @param convertView the old view to reuse, if possible
+         * @param parent the parent that this view will eventually be attached to
+         * @return a view corresponding to the data at the specified position
+         */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             Store store = getItem(position);
@@ -53,21 +74,36 @@ public class SearchShopActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Retrieves a list of stores from the server based on the specified options.
+     *
+     * @param options a HashMap containing the options for the server request
+     * @return a ServerArrayResponse containing the list of stores
+     */
     private ServerArrayResponse<Store> getStores(HashMap<String, Boolean> options) {
         ServerAPI myServer = new ServerAPI();
         return myServer.getStores(null, options);
     }
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     *                           Otherwise, it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_shop);
 
+        // Initialize UI elements
         searchEditText = findViewById(R.id.edit_text_search);
         searchButton = findViewById(R.id.button_search);
         resultListView = findViewById(R.id.list_view_results);
         backButton = findViewById(R.id.button_back);
 
+        // Set click listener for the search button
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,6 +112,7 @@ public class SearchShopActivity extends AppCompatActivity {
             }
         });
 
+        // Set click listener for the back button
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,6 +122,7 @@ public class SearchShopActivity extends AppCompatActivity {
             }
         });
 
+        // Set item click listener for the results list
         resultListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -94,6 +132,11 @@ public class SearchShopActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Searches for shops matching the specified name.
+     *
+     * @param shopName the name of the shop to search for
+     */
     private void searchShops(String shopName) {
         new Thread(() -> {
             HashMap<String, Boolean> options = new HashMap<>();
@@ -120,15 +163,25 @@ public class SearchShopActivity extends AppCompatActivity {
         }).start();
     }
 
+    /**
+     * Updates the ListView with the search results.
+     *
+     * @param stores the list of stores to display
+     */
     private void updateResults(List<Store> stores) {
         StoreAdapter adapter = new StoreAdapter(this, stores);
         resultListView.setAdapter(adapter);
     }
 
+    /**
+     * Opens the table grid activity for the selected store.
+     *
+     * @param store the store selected by the user
+     */
     private void openTableGrid(Store store) {
         Intent intent = new Intent(SearchShopActivity.this, TableGridActivity.class);
         String mode = getIntent().getStringExtra("mode");
-        intent.putExtra("shopName",store.getName());
+        intent.putExtra("shopName", store.getName());
         intent.putExtra("mode", mode);
         startActivity(intent);
         finish();
